@@ -1,3 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFC Quest Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 m-0 p-0">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Mengizinkan kode Canvas menggunakan fungsi Lucide React secara langsung di browser
+        const { 
+            Trophy, User, MessageSquare, Star, ShieldCheck, Play, ChevronRight, Award, 
+            BarChart3, Flame, Volume2, AlertCircle, Gamepad2, Target, Sparkles, ChevronLeft, 
+            PhoneOff, UserCheck, Zap, Info, Radio, Home, Type, Coins, Send, CheckCircle2, 
+            XCircle, ShieldAlert, HeartPulse, ClipboardList, Compass, Check, ListOrdered 
+        } = lucide;
+
+        // ============================================================
+        // JANGAN HAPUS CODES DI ATAS. 
+        // SILAKAN TEMPELKAN (PASTE) KODE ASLI DARI GEMINI CANVAS ANDA 
+        // TEPAT DI BAWAH BARIS INI:
+        // ============================================================
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Trophy, 
@@ -1432,3 +1462,15 @@ const App = () => {
 };
 
 export default App;
+
+        // ============================================================
+        // KODE CANVAS SELESAI DI SINI
+        // ============================================================
+
+        // PENTING: Jika nama fungsi utama di kode Canvas Anda adalah 'App', baris di bawah ini akan otomatis merendernya.
+        // Namun, jika nama fungsinya bukan App (misalnya: 'TfcQuest'), ganti kata <App /> di bawah menjadi <TfcQuest />
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
