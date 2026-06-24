@@ -1,0 +1,1434 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Trophy, 
+  User, 
+  MessageSquare, 
+  Star, 
+  ShieldCheck, 
+  Play, 
+  ChevronRight, 
+  Award, 
+  BarChart3, 
+  Flame,
+  Volume2,
+  AlertCircle,
+  Gamepad2,
+  Target,
+  Sparkles,
+  ChevronLeft,
+  PhoneOff,
+  UserCheck,
+  Zap,
+  Info,
+  Radio,
+  Home,
+  Type,
+  Coins,
+  Send,
+  CheckCircle2,
+  XCircle,
+  ShieldAlert,
+  HeartPulse,
+  ClipboardList,
+  Compass,
+  Check,
+  ListOrdered
+} from 'lucide-react';
+
+// ================= KOMPONEN IKON KUSTOM CUTE (Didefinisikan di awal agar tidak undefined) =================
+
+// Ikon Lucu Kustom untuk TFC Free PA (Super Shield Guardian)
+const CuteShieldIcon = () => (
+  <svg className="w-16 h-16 animate-bounce" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animationDuration: '3s' }}>
+    <path d="M12 20C4 22 2 30 8 36C12 40 18 36 18 32" stroke="#818CF8" strokeWidth="3" strokeLinecap="round" />
+    <path d="M52 20C60 22 62 30 56 36C52 40 46 36 46 32" stroke="#818CF8" strokeWidth="3" strokeLinecap="round" />
+    <path d="M32 4L14 12C14 28 22 48 22 48 L32 54 L42 48 C42 48 50 28 50 12 Z" fill="#3b82f6" />
+    <path d="M32 4L14 12C14 28 22 48 22 48 L32 54 L42 48 C42 48 50 28 50 12 Z" stroke="#1d4ed8" strokeWidth="3" strokeLinejoin="round" fill="none" />
+    <path d="M32 12 L32 46" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+    <path d="M22 26 L42 26" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+    <circle cx="26" cy="22" r="3.5" fill="#ffffff" />
+    <circle cx="38" cy="22" r="3.5" fill="#ffffff" />
+    <path d="M29 32C29 34 31 35 32 35C33 35 35 34 35 32" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="21" cy="25" r="2.5" fill="#F87171" opacity="0.8" />
+    <circle cx="43" cy="25" r="2.5" fill="#F87171" opacity="0.8" />
+  </svg>
+);
+
+// Ikon Lucu Kustom untuk TFC APE (Vitality Life/Health Alchemist)
+const CutePotionIcon = () => (
+  <svg className="w-14 h-14 animate-pulse" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animationDuration: '2s' }}>
+    <rect x="26" y="6" width="12" height="6" rx="2" fill="#A7F3D0" stroke="#047857" strokeWidth="3" />
+    <rect x="29" y="12" width="6" height="8" fill="#A7F3D0" stroke="#047857" strokeWidth="3" />
+    <path d="M20 20C15 25 12 32 12 42C12 51 18 56 32 56C46 56 52 51 52 42C52 32 49 25 44 20H20Z" fill="#ECFDF5" stroke="#047857" strokeWidth="3" />
+    <path d="M14 42C14 49.5 19 54.5 32 54.5C45 54.5 50 49.5 50 42C50 38 46 36 32 36C18 36 14 38 14 42Z" fill="#10B981" />
+    <circle cx="22" cy="45" r="2.5" fill="#A7F3D0" />
+    <circle cx="42" cy="41" r="3" fill="#A7F3D0" />
+    <circle cx="32" cy="48" r="1.5" fill="#A7F3D0" />
+    <circle cx="25" cy="27" r="3.5" fill="#047857" />
+    <circle cx="39" cy="27" r="3.5" fill="#047857" />
+    <path d="M29 32C30 33.5 32 33.5 33 32" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M32 46L29.5 43.5C26 39.5 24 37 24 34.5C24 32.5 25.5 31 27.5 31C29 31 30.5 32 32 33.5C33.5 32 35 31 36.5 31C38.5 31 40 32.5 40 34.5C40 37 38 39.5 34.5 43.5L32 46Z" fill="#EF4444" />
+  </svg>
+);
+
+// Ikon pencarian kustom
+const SearchIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+);
+
+// ================= KONFIGURASI DATA =================
+
+const TFC_TYPES = [
+  { 
+    id: 'Free PA', 
+    title: '🛡️ Guardian (TFC Free PA)', 
+    desc: 'Spesialis asuransi kecelakaan gratis. Misi Anda adalah memvalidasi data survey, enrichment data, dan memberikan proteksi AXA Care gratis.',
+    icon: <CuteShieldIcon />,
+    color: 'bg-blue-50 text-blue-700 border-blue-200'
+  },
+  { 
+    id: 'APE', 
+    title: '🧪 Alchemist (TFC APE)', 
+    desc: 'Spesialis produk kesehatan & non-kecelakaan. Misi Anda adalah menawarkan Medicash Pro 7 / Heart & Save dengan manfaat kamar RS & pengembalian dana.',
+    icon: <CutePotionIcon />,
+    color: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+  }
+];
+
+// Pertanyaan Kuis Strategis Berdasarkan Contoh Script Nyata TFC
+const QUESTIONS = [
+  {
+    id: 1,
+    client: 'Pak Budi (Si Eksekutif)',
+    avatar: '👔',
+    text: 'Saat menyapa pertama kali di program Free PA, nasabah langsung berkata: "Saya sedang sibuk!" Apa tindakan terbaik Anda sesuai standar script?',
+    options: [
+      { key: 'A', text: 'Mengabaikannya and langsung melanjutkan membaca survey secepat mungkin.', isCorrect: false },
+      { key: 'B', text: 'Meminta maaf dengan sopan dan menanyakan kapan waktu luang yang tepat untuk dihubungi kembali.', isCorrect: true },
+      { key: 'C', text: 'Menutup telepon secara sepihak dan langsung menandainya sebagai "Gagal menghubungi".', isCorrect: false }
+    ],
+    hint: 'Script Lama: "Maaf bapak/ibu, mungkin saat ini waktunya kurang tepat. Boleh saya tahu waktu yang tepat...?"'
+  },
+  {
+    id: 2,
+    client: 'Ibu Ratna (Si Teliti)',
+    avatar: '👓',
+    text: 'Dalam survey Free PA, jika nasabah menyatakan "Tidak memiliki Kartu Kredit", apa aturan penanganan di sistem telemarketing Anda?',
+    options: [
+      { key: 'A', text: 'Langsung menutup sesi kuis (Case Closed) dan segera melanjutkan ke bagian Closing Greeting.', isCorrect: true },
+      { key: 'B', text: 'Memaksa nasabah mendaftar kartu kredit baru agar asuransi kecelakaan bisa aktif.', isCorrect: false },
+      { key: 'C', text: 'Menghubungkan nasabah ke sistem secured payment secara acak.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "Jika nasabah mengatakan Tidak punya CC, TFC langsung Case Closed and lanjut Closing Greeting."'
+  },
+  {
+    id: 3,
+    client: 'Mas Andre (Si Kritis)',
+    avatar: '💢',
+    text: 'Nasabah Medicash Pro 7 bertanya: "Berapa penggantian harian jika saya dirawat inap di RS yang tidak bekerjasama dengan AXA?"',
+    options: [
+      { key: 'A', text: 'Penggantian biaya harian tetap 100% dibayarkan tunai melalui debit.', isCorrect: false },
+      { key: 'B', text: 'Klaim tidak dapat diproses sama sekali jika bukan RS rekanan AXA.', isCorrect: false },
+      { key: 'C', text: 'Klaim diajukan secara reimbursement dengan nilai penggantian sebesar 50% dari manfaat cashless.', isCorrect: true }
+    ],
+    hint: 'Script Lama: "Penggantian manfaatnya bernilai 50% dari manfaat cashless jika reimbursement."'
+  },
+  {
+    id: 4,
+    client: 'Eyang Siti (Si Ramah)',
+    avatar: '👵',
+    text: 'Eyang Siti menyukai asuransi tapi sangat cerewet menceritakan hobi dan keluarganya. Apa trik terbaik Anda sebagai TFC professional?',
+    options: [
+      { key: 'A', text: 'Mendengarkan dengan ramah, memberikan empati singkat, lalu menuntun kembali ke topik asuransi dengan lembut.', isCorrect: true },
+      { key: 'B', text: 'Memotong pembicaraan secara kasar: "Eyang, waktu saya terbatas, mohon dengarkan produk ini saja."', isCorrect: false },
+      { key: 'C', text: 'Ikut mengobrol di luar asuransi hingga durasi panggilan lewat dari 30 menit.', isCorrect: false }
+    ],
+    hint: 'Tips Telemarketing: Jaga kendali panggilan dengan ramah tanpa melukai perasaan nasabah.'
+  },
+  {
+    id: 5,
+    client: 'Ibu Ratna (Si Teliti)',
+    avatar: '👓',
+    text: 'Pada program Medicash Pro 7, berapa lama masa tunggu yang berlaku untuk Penyakit Khusus (seperti Hernia, Kista, atau Kanker)?',
+    options: [
+      { key: 'A', text: 'Masa tunggu langsung aktif dalam 1 x 24 jam.', isCorrect: false },
+      { key: 'B', text: 'Berlaku masa tunggu selama 12 bulan (1 tahun) sejak proteksi aktif.', isCorrect: true },
+      { key: 'C', text: 'Hanya ada masa tunggu selama 30 hari untuk segala jenis penyakit.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "Masa tunggu 12 bulan untuk Penyakit Khusus berlaku sejak aktif perlindungan ini..."'
+  },
+  {
+    id: 6,
+    client: 'Pak Budi (Si Eksekutif)',
+    avatar: '👔',
+    text: 'Nasabah APE setuju ikut program di bulan Agustus. Kapan Reward E-Voucher Gopay 100 ribu dikirimkan untuk pembayaran bulanan?',
+    options: [
+      { key: 'A', text: 'E-voucher dikirim seketika saat nasabah menyetujui program di telepon.', isCorrect: false },
+      { key: 'B', text: 'Dikirim setelah melewati 20 hari kalender sejak pendebetan premi berhasil dilakukan selama 3 bulan berturut-turut.', isCorrect: true },
+      { key: 'C', text: 'E-voucher hanya diberikan jika nasabah memilih pembayaran tahunan.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "E-Voucher Gopay senilai 100 ribu diberikan setelah pendebetan premi 3 bulan berturut-turut berhasil."'
+  },
+  {
+    id: 7,
+    client: 'Mas Andre (Si Kritis)',
+    avatar: '💢',
+    text: 'Nasabah menolak membocorkan 16 digit nomor kartu kreditnya karena takut penipuan. Bagaimanakah solusi AXA Secured Payment?',
+    options: [
+      { key: 'A', text: 'TFC menjelaskan bahwa nasabah cukup menekan 16 digit angka kartu kredit sendiri di keypad handphone tanpa perlu menyebutkannya.', isCorrect: true },
+      { key: 'B', text: 'TFC mendesak nasabah untuk percaya: "Saya dari AXA resmi Pak, aman kok jika disebutkan saja."', isCorrect: false },
+      { key: 'C', text: 'Mengganti metode pembayaran dengan pengiriman uang tunai lewat pos.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "Bapak/Ibu tidak perlu menyebutkan nomor kartu kredit... cukup menekan 16 angka di keypad handphone."'
+  },
+  {
+    id: 8,
+    client: 'Eyang Siti (Si Ramah)',
+    avatar: '👵',
+    text: 'Pada produk Heart & Save, berapa total pengembalian premi (ROP) di akhir tahun ke-10 jika tidak terjadi klaim?',
+    options: [
+      { key: 'A', text: 'Dikembalikan sebesar 70% dari total premi terdebet.', isCorrect: false },
+      { key: 'B', text: 'Semua premi yang sudah dibayarkan hangus sebagai biaya administrasi.', isCorrect: false },
+      { key: 'C', text: 'Mendapatkan pengembalian premi sebesar 105% di akhir tahun ke-10.', isCorrect: true }
+    ],
+    hint: 'Script Lama: "...manfaat pengembalian premi sebesar 105% di akhir tahun ke-10."'
+  },
+  {
+    id: 9,
+    client: 'Ibu Ratna (Si Teliti)',
+    avatar: '👓',
+    text: 'Saat nasabah setuju program Heart & Save, respon apa yang WAJIB diucapkan nasabah sebagai bukti legalitas verbal?',
+    options: [
+      { key: 'A', text: 'Nasabah harus merespon dengan kata "SETUJU" yang direkam oleh sistem.', isCorrect: true },
+      { key: 'B', text: 'Nasabah cukup berdeham atau menjawab "Mungkin nanti".', isCorrect: false },
+      { key: 'C', text: 'Nasabah harus menandatangani polis kertas basah saat itu juga.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "Mohon direspon dengan kata SETUJU, Bapak/Ibu SETUJU? (Nasabah wajib menjawab Setuju)"'
+  },
+  {
+    id: 10,
+    client: 'Mas Andre (Si Kritis)',
+    avatar: '💢',
+    text: 'Penyakit apa saja yang secara tegas dikecualikan (tidak dicover) oleh sistem asuransi AXA pada script Medicash Pro 7?',
+    options: [
+      { key: 'A', text: 'Semua cedera yang diakibatkan oleh aktivitas harian biasa.', isCorrect: false },
+      { key: 'B', text: 'HIV, AIDS, penyalahgunaan narkoba, kehamilan, penyakit keturunan/bawaan, serta bunuh diri.', isCorrect: true },
+      { key: 'C', text: 'Demam Berdarah (DBD) dan Penyakit Malaria.', isCorrect: false }
+    ],
+    hint: 'Script Lama: "...kecuali yang tidak kami cover DIANTARANYA HIV, AIDS, narkoba, kehamilan, penyakit keturunan..."'
+  }
+];
+
+const CHAT_STAGES = [
+  {
+    stage: 1,
+    title: 'Tahap 1: Greeting & Izin',
+    hint: {
+      'Free PA': 'Sapa hangat: "Selamat pagi, saya dari AXA Financial Indonesia sedang melakukan survey kebutuhan asuransi, boleh minta waktunya sebentar?"',
+      'APE': 'Sapa hangat: "Selamat pagi, terima kasih atas partisipasi Anda di program proteksi gratis kemarin. Saat ini ada manfaat ekstra rawat inap..."'
+    }
+  },
+  {
+    stage: 2,
+    title: 'Tahap 2: Probing Pekerjaan & Transportasi',
+    hint: {
+      'Free PA': 'Tanya: "Boleh dibantu bapak/ibu, usia saat ini masuk di range berapa dan transportasi harian menggunakan kendaraan apa?"',
+      'APE': 'Tanya: "Untuk penyesuaian manfaat harian rawat inap Medicash Pro, boleh dibantu saat ini jenis pekerjaannya apa ya Pak/Bu?"'
+    }
+  },
+  {
+    stage: 3,
+    title: 'Tahap 3: Closing & Validasi',
+    hint: {
+      'Free PA': 'Tanya: "Bapak/Ibu bersedia ya dihubungi kembali untuk konfirmasi sertifikat proteksi kecelakaan gratis ini? Mohon dijawab Iya/Boleh."',
+      'APE': 'Tanya: "Bisa saya bantu proses aktivasi pendebetan aman melalui kartu kreditnya ya Pak/Bu? Mohon direspon dengan kata SETUJU."'
+    }
+  }
+];
+
+// Data stage petualangan yang dapat diklik setelah pemilihan spesialisasi
+const ADVENTURE_STAGES = [
+  {
+    id: 1,
+    title: 'Greeting & Ice Breaker',
+    subtitle: 'Tahap Pembuka Panggilan',
+    color: 'from-blue-500 to-indigo-600',
+    desc: 'Melatih teknik menyapa nasabah baru menggunakan Smiling Voice dalam 7 detik pertama panggilan.',
+    detail: {
+      'Free PA': 'Misi: Mendapatkan persetujuan survey tanpa terkesan menawarkan produk. Jika nasabah sibuk, tawarkan opsi dihubungi kembali secara sopan.',
+      'APE': 'Misi: Mengapresiasi kepesertaan gratis 3 bulan kemarin dan mengarahkan ke peningkatan manfaat kesehatan baru.'
+    }
+  },
+  {
+    id: 2,
+    title: 'Survey & Probing Rahasia',
+    subtitle: 'Tahap Pendeteksi Kebutuhan',
+    color: 'from-amber-500 to-orange-600',
+    desc: 'Melatih kemampuan melakukan wawancara/survey data pribadi tanpa membuat nasabah merasa risih.',
+    detail: {
+      'Free PA': 'Misi: Memverifikasi domisili, pekerjaan, hobi, transportasi harian, dan jumlah Kartu Kredit (ingat aturan Case Closed jika tidak punya CC).',
+      'APE': 'Misi: Mendeteksi profil pekerjaan nasabah untuk mencocokkan nominal premi program Medicash Pro 7 / Heart & Save.'
+    }
+  },
+  {
+    id: 3,
+    title: 'Closing & Validasi Sukses',
+    subtitle: 'Tahap Penentu Kelulusan',
+    color: 'from-rose-500 to-red-600',
+    desc: 'Melatih ketangkasan mengatasi penolakan (Handling Objection) dan mendapatkan konfirmasi verbal legal.',
+    detail: {
+      'Free PA': 'Misi: Mendapatkan pernyataan persetujuan dihubungi kembali untuk konfirmasi polis proteksi kecelakaan gratis.',
+      'APE': 'Misi: Menuntun nasabah untuk mengucapkan kata "SETUJU" sebagai bukti sah pendebetan premi aman kartu kredit.'
+    }
+  }
+];
+
+// ================= MAIN COMPONENT =================
+
+const App = () => {
+  const [view, setView] = useState('home'); // home | select_type | stages_overview | misi_hub | quiz | victory | chat | chat_victory | total_poin | leaderboard
+  const [tfcType, setTfcType] = useState(null); // 'Free PA' | 'APE'
+  const [largeFont, setLargeFont] = useState(true);
+  
+  // Custom Nama TFC Karakter Utama
+  const [heroName, setTfcName] = useState('Andi TFC');
+
+  // SCORE STATES
+  const [scoreMisi1, setScoreMisi1] = useState(0); // Hot Quiz (Max 1000)
+  const [scoreMisi2, setScoreMisi2] = useState(0); // Chat Mode (Max 300)
+
+  // MONITOR STATUS PENYELESAIAN MISI
+  const [misi1Selesai, setMisi1Selesai] = useState(false);
+  const [misi2Selesai, setMisi2Selesai] = useState(false);
+  const [misi3Selesai, setMisi3Selesai] = useState(false);
+
+  // STAGE DETAIL MODAL STATE
+  const [activeStageDetail, setActiveStageDetail] = useState(null);
+
+  // QUIZ STATE (Misi 1)
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [puzzleState, setPuzzlePieces] = useState(Array(10).fill(false));
+  const [lastCorrect, setLastCorrect] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [flyingPiece, setFlyingPiece] = useState(null);
+  const [showHint, setShowHint] = useState(false);
+
+  // CHAT PRACTICE STATE (Misi 2)
+  const [chatMessages, setMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isLoding, setIsLoading] = useState(false);
+  const [chatCount, setChatCount] = useState(0); // Menghitung jumlah interaksi (0-15)
+  const [chatRival, setChatRival] = useState({ name: 'Pak Budi', avatar: '👔', traits: 'Sopan, koperatif' });
+
+  // Status evaluasi kelulusan
+  const [scores, setScores] = useState({
+    name: 'Andi TFC',
+    intonation: 5,
+    confidence: 5,
+    navigation: 5,
+    knowledge: 5,
+    adaptability: 5,
+    badge: "TFC Rookie",
+    summary: "Latih terus kemampuanmu agar semakin mantap!",
+    advice: "Pelajari kembali detail script telemarketing untuk menyempurnakan jawaban."
+  });
+
+  // Simulasi Rekan-rekan Agen untuk Leaderboard
+  const [mockLeaderboard, setMockLeaderboard] = useState([
+    { name: 'Rian TFC (Senior)', score: 1150, rank: 'Platinum Master', avatar: '🦁' },
+    { name: 'Siska TFC (Pro)', score: 980, rank: 'Gold Pro', avatar: '🦊' },
+    { name: 'Budi TFC (Pro)', score: 850, rank: 'Gold Pro', avatar: '🐻' },
+    { name: 'Santi TFC (Rookie)', score: 450, rank: 'TFC Rookie', avatar: '🐨' }
+  ]);
+
+  const chatEndRef = useRef(null);
+  const apiKey = ""; 
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, view]);
+
+  const toggleFontSize = () => {
+    setLargeFont(prev => !prev);
+  };
+
+  const selectTfcType = (type) => {
+    setTfcType(type);
+    setView('stages_overview'); // Diarahkan ke petualangan 3 stage dulu!
+  };
+
+  const resetToHome = () => {
+    setView('home');
+    setTfcType(null);
+    setScoreMisi1(0);
+    setScoreMisi2(0);
+    setPuzzlePieces(Array(10).fill(false));
+    setMessages([]);
+    setChatCount(0);
+    setMisi1Selesai(false);
+    setMisi2Selesai(false);
+    setMisi3Selesai(false);
+    setActiveStageDetail(null);
+  };
+
+  // Hitung jumlah misi yang komplit (1, 2, atau 3)
+  const getCompletedMissionsCount = () => {
+    let count = 0;
+    if (misi1Selesai) count++;
+    if (misi2Selesai) count++;
+    if (misi3Selesai) count++;
+    return count;
+  };
+
+  // Mengambil total skor saat ini
+  const getCurrentTotalScore = () => {
+    let bonus = 0;
+    if (scoreMisi1 > 0) bonus += 10;
+    if (scoreMisi2 > 0) bonus += 10;
+    return scoreMisi1 + scoreMisi2 + bonus;
+  };
+
+  // Mengurutkan dan menghasilkan data papan peringkat real-time
+  const getSortedLeaderboard = () => {
+    const userTotal = getCurrentTotalScore();
+    let userRankName = 'TFC Rookie';
+    if (userTotal >= 1000) userRankName = 'Platinum Master';
+    else if (userTotal >= 700) userRankName = 'Gold Pro';
+
+    const currentUserRow = {
+      name: `${heroName} (Anda)`,
+      score: userTotal,
+      rank: userRankName,
+      avatar: '⭐',
+      isCurrentUser: true
+    };
+
+    const combined = [...mockLeaderboard, currentUserRow];
+    return combined.sort((a, b) => b.score - a.score);
+  };
+
+  // ================= MISI 1 (KUIS PUZZLE) FUNCTIONS =================
+  const startQuiz = () => {
+    setCurrentIdx(0);
+    setLastCorrect(null);
+    setSelectedOption(null);
+    setShowHint(false);
+    setView('quiz');
+  };
+
+  const handleAnswer = (option) => {
+    if (lastCorrect !== null) return;
+    setSelectedOption(option.key);
+    
+    if (option.isCorrect) {
+      setLastCorrect(true);
+      setScoreMisi1(prev => prev + 100);
+      setFlyingPiece(currentIdx);
+      
+      const nextPuzzle = [...puzzleState];
+      nextPuzzle[currentIdx] = true;
+      setPuzzlePieces(nextPuzzle);
+
+      setTimeout(() => {
+        setFlyingPiece(null);
+      }, 1200);
+    } else {
+      setLastCorrect(false);
+    }
+  };
+
+  const finishQuiz = () => {
+    const correctCount = puzzleState.filter(Boolean).length;
+    const finalScores = {
+      name: heroName,
+      intonation: Math.max(2, Math.min(5, Math.round(correctCount / 2) + (scoreMisi1 > 800 ? 1 : 0))),
+      confidence: Math.max(2, Math.min(5, Math.round(correctCount / 2) + (scoreMisi1 >= 700 ? 1 : 0))),
+      navigation: Math.max(2, Math.min(5, Math.round(correctCount / 2) + 1)),
+      knowledge: Math.max(1, Math.min(5, Math.round(scoreMisi1 / 200))),
+      adaptability: Math.max(2, Math.min(5, Math.round(correctCount / 2) + 1)),
+      badge: scoreMisi1 === 1000 ? 'Platinum Master' : scoreMisi1 >= 700 ? 'Gold Pro' : 'TFC Rookie',
+      summary: scoreMisi1 === 1000 
+        ? "Luar biasa! Semua 10 kepingan puzzle sukses disatukan." 
+        : "Kerja bagus! Anda telah menyelesaikan seluruh tantangan kuis.",
+      advice: scoreMisi1 === 1000 
+        ? "Pemahaman Anda sangat jernih dan mendalam terhadap naskah kerja AXA." 
+        : "Ayo pelajari lagi contekan script lama untuk meningkatkan akurasi jawaban Anda!"
+    };
+
+    setScores(finalScores);
+    setMisi1Selesai(true);
+    setView('victory');
+  };
+
+  const nextQuestion = () => {
+    setLastCorrect(null);
+    setSelectedOption(null);
+    setShowHint(false);
+    if (currentIdx < 9) {
+      setCurrentIdx(prev => prev + 1);
+    } else {
+      finishQuiz();
+    }
+  };
+
+  // ================= MISI 2 (BERLATIH CHAT) FUNCTIONS =================
+  const startChatPractice = () => {
+    setMessages([
+      { role: 'assistant', content: `Halo TFC! Saya ${chatRival.name}. Ada yang bisa saya bantu pagi ini?` }
+    ]);
+    setChatCount(0);
+    setView('chat');
+  };
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim()) return;
+
+    const userMsg = { role: 'user', content: chatInput };
+    const currentMsgs = [...chatMessages, userMsg];
+    setMessages(currentMsgs);
+    setChatInput('');
+    setIsLoading(true);
+
+    const currentCount = chatCount + 1;
+    setChatCount(currentCount);
+
+    if (currentCount === 5 || currentCount === 10 || currentCount === 15) {
+      setScoreMisi2(prev => prev + 100);
+    }
+
+    try {
+      const stageIdx = Math.min(2, Math.floor(chatCount / 5));
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ 
+            parts: [{ 
+              text: `Berperanlah sebagai calon nasabah asuransi bernama ${chatRival.name} dengan sifat ${chatRival.traits}.
+                     Konteks: Kamu sedang dihubungi TFC ${tfcType} dalam simulasi percakapan chat.
+                     Saat ini ada di tahap perkembangan: ${CHAT_STAGES[stageIdx].title}.
+                     Balas dengan kalimat yang ramah, sopan, dan cukup koperatif.
+                     TFC berkata: "${chatInput}"` 
+            }] 
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Baik, saya mengerti. Silakan dilanjutkan.";
+      setMessages(prev => [...prev, { role: 'assistant', content: aiText }]);
+    } catch (e) {
+      console.error(e);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Sinyal baik, silakan dilanjutkan penjelasannya..." }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Dinamis Style Font
+  const fontStyle = largeFont ? 'text-lg md:text-xl font-extrabold text-slate-800' : 'text-sm font-medium text-slate-700';
+  const descStyle = largeFont ? 'text-base md:text-lg font-bold text-slate-600' : 'text-xs font-semibold text-slate-500';
+  const titleStyle = largeFont ? 'text-2xl md:text-3xl font-black text-slate-900' : 'text-lg font-bold text-slate-800';
+
+  return (
+    <div className="w-full sm:max-w-md mx-auto h-[100dvh] sm:h-[800px] bg-slate-50 shadow-2xl sm:rounded-[4rem] overflow-hidden sm:border-[12px] sm:border-slate-900 relative flex flex-col justify-between select-none animate-in fade-in">
+      
+      {/* HEADER AKSESIBILITAS */}
+      <div className="h-14 bg-slate-900 z-30 flex items-center justify-between px-6 text-white text-[10px] shrink-0 border-b border-slate-800">
+        <span className="font-extrabold tracking-widest text-slate-400 uppercase">CLOSER ODYSSEY</span>
+        <button 
+          onClick={toggleFontSize} 
+          className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 px-3.5 py-1 rounded-full font-black uppercase text-[10px] shadow-md transition-all active:scale-95"
+        >
+          <Type className="w-3.5 h-3.5" />
+          HURUF: {largeFont ? "BESAR" : "NORMAL"}
+        </button>
+      </div>
+
+      {/* KONTEN UTAMA */}
+      <div className="flex-1 bg-white overflow-hidden flex flex-col justify-between">
+
+        {/* ================= SCREEN 1: WELCOME SCREEN (LOBBY AWAL) ================= */}
+        {view === 'home' && (
+          <div className="flex flex-col h-full justify-between p-6 text-center bg-slate-900 overflow-y-auto relative scrollbar-none">
+            
+            <div className="absolute top-10 left-10 opacity-20 animate-pulse"><Sparkles className="w-8 h-8 text-yellow-300" /></div>
+            <div className="absolute bottom-24 right-10 opacity-25 animate-bounce" style={{ animationDuration: '3s' }}><Trophy className="w-10 h-10 text-amber-400" /></div>
+
+            <div className="space-y-4 pt-2">
+              <div className="inline-block bg-gradient-to-tr from-yellow-400 via-orange-500 to-rose-500 p-5 rounded-[2.2rem] shadow-2xl shadow-orange-500/20 rotate-3">
+                <Compass className="w-14 h-14 text-white animate-spin" style={{ animationDuration: '10s' }} />
+              </div>
+              
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-400">AXA TELEMARKETING ADVENTURE</span>
+                <h1 className="text-3xl font-black text-white tracking-tight leading-none uppercase">
+                  TFC QUEST <br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-400 font-extrabold">
+                    CLOSER ODYSSEY
+                  </span>
+                </h1>
+                <p className="text-slate-400 text-xs font-semibold italic">Kuasai Alur Panggilan & Taklukkan Tantangan Penjualan!</p>
+              </div>
+            </div>
+
+            {/* Input Nama (Koreksi Label: Ketik Nama Anda) */}
+            <div className="bg-slate-800/80 p-4 rounded-[1.8rem] border border-slate-700/60 max-w-sm mx-auto w-full space-y-2.5 my-2">
+              <label className="text-[11px] font-extrabold uppercase text-amber-400 tracking-wider block text-left">✍️ Ketik Nama Anda:</label>
+              <input 
+                type="text" 
+                maxLength={20}
+                placeholder="Andi TFC" 
+                value={heroName}
+                onChange={(e) => {
+                  setTfcName(e.target.value);
+                  setScores(prev => ({ ...prev, name: e.target.value }));
+                }}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-bold text-sm focus:outline-none focus:border-amber-400 text-center"
+              />
+            </div>
+
+            {/* TOMBOL PILIHAN SPESIALISASI */}
+            <div className="pt-2 shrink-0 pb-4">
+              <button 
+                onClick={() => setView('select_type')}
+                className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-slate-900 py-4 px-8 rounded-3xl font-black uppercase text-sm tracking-[0.2em] shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all hover:scale-105 active:scale-95 animate-pulse flex items-center justify-center gap-2 border-b-4 border-orange-700"
+              >
+                <span>⚔️ PILIH SPESIALISASI PAHLAWAN-MU ⚔️</span>
+              </button>
+              <p className="text-[9px] text-slate-400 mt-2 tracking-widest uppercase">Klik untuk Menentukan Peran Anda!</p>
+            </div>
+
+          </div>
+        )}
+
+        {/* ================= SCREEN 2: PILIHAN SPESIALISASI ================= */}
+        {view === 'select_type' && (
+          <div className="flex flex-col h-full justify-between p-6 bg-slate-900 animate-in slide-in-from-right duration-500 overflow-y-auto">
+            <div className="flex items-center justify-between shrink-0 mb-4">
+              <button onClick={() => setView('home')} className="p-2.5 bg-slate-800 rounded-xl shadow-sm hover:bg-slate-700 text-white">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <h2 className="text-xl font-black text-white uppercase italic tracking-wider">HERO CLASS</h2>
+              <button onClick={resetToHome} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 hover:text-white"><Home className="w-6 h-6" /></button>
+            </div>
+            
+            <div className="flex-1 space-y-4">
+              <p className={`${fontStyle} text-center leading-relaxed text-slate-300 mb-2`}>
+                Pilih gaya perlindungan dan jenis misi produk Anda:
+              </p>
+
+              <div className="grid gap-4">
+                {TFC_TYPES.map(type => (
+                  <button 
+                    key={type.id}
+                    onClick={() => selectTfcType(type.id)}
+                    className="p-6 w-full rounded-[2.5rem] border-2 border-slate-700 hover:border-yellow-400 transition-all cursor-pointer shadow-2xl bg-slate-800/80 flex flex-col items-center text-center gap-4 hover:scale-[1.03]"
+                  >
+                    <div className="shrink-0 p-3 bg-slate-700/50 rounded-2xl shadow-inner border border-slate-600">
+                      {type.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-black uppercase tracking-tight text-yellow-400 leading-none">{type.title}</h3>
+                      <p className={`${descStyle} leading-relaxed mt-2 text-slate-300`}>{type.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= SCREEN 2.5: PETA PETUALANGAN 3 STAGE UTAMA (BARU & KLIK AKTIF!) ================= */}
+        {view === 'stages_overview' && (
+          <div className="flex flex-col h-full justify-between p-6 bg-slate-900 animate-in slide-in-from-right duration-500 overflow-y-auto relative scrollbar-none text-white">
+            
+            {/* Header Stage */}
+            <div className="flex items-center justify-between shrink-0 mb-4">
+              <button onClick={() => setView('select_type')} className="p-2.5 bg-slate-800 rounded-xl shadow-sm hover:bg-slate-700 text-white">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <h2 className="text-base font-black text-yellow-400 uppercase italic tracking-wider flex items-center gap-1.5 leading-none">
+                <Compass className="w-5 h-5 text-yellow-400" /> JALUR TUGAS {tfcType}
+              </h2>
+              <button onClick={resetToHome} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 hover:text-white"><Home className="w-6 h-6" /></button>
+            </div>
+
+            <p className={`${descStyle} text-center text-slate-400 mb-2 leading-relaxed`}>
+              Ketuk setiap tahapan di bawah untuk membuka **Strategi Kunci** yang harus Anda lakukan di lapangan!
+            </p>
+
+            {/* Peta Alur Stage Aktif Yang Bisa Diklik */}
+            <div className="flex-1 flex flex-col justify-around gap-4 py-4 relative">
+              {/* Garis vertikal hubung antar stage */}
+              <div className="absolute left-[30px] top-8 bottom-8 w-0.5 border-l-2 border-dashed border-slate-700 pointer-events-none"></div>
+
+              {ADVENTURE_STAGES.map((stage) => (
+                <button
+                  key={stage.id}
+                  onClick={() => setActiveStageDetail(stage)}
+                  className={`relative p-4 rounded-2xl bg-slate-800/90 border-2 hover:scale-[1.02] active:scale-95 transition-all text-left flex items-start gap-4 z-10 ${
+                    activeStageDetail?.id === stage.id ? 'border-yellow-400 bg-slate-800 shadow-[0_0_20px_rgba(234,179,8,0.2)]' : 'border-slate-700/60'
+                  }`}
+                >
+                  {/* Badge Stage */}
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stage.color} flex items-center justify-center font-black text-white text-base shadow-md shrink-0`}>
+                    {stage.id}
+                  </div>
+                  
+                  {/* Info Ringkas */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">{stage.subtitle}</p>
+                    <h3 className="text-white font-extrabold text-sm leading-snug">{stage.title}</h3>
+                    <p className="text-slate-300 text-[11px] leading-snug mt-1 font-semibold">{stage.desc}</p>
+                    <span className="text-[8px] font-black text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-2 py-0.5 rounded-full mt-1.5 inline-block">Klik detail 💡</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Box Detail Stage Interaktif saat diklik */}
+            {activeStageDetail && (
+              <div className="bg-slate-800 border-2 border-yellow-400/60 p-4.5 rounded-2xl text-left animate-in zoom-in-95 duration-200 shrink-0 shadow-2xl mb-4">
+                <div className="flex items-center gap-1.5 text-yellow-400 font-black text-[10px] uppercase tracking-wider mb-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Strategi Kunci: Stage {activeStageDetail.id}
+                </div>
+                <h4 className="text-white font-extrabold text-xs uppercase mb-1">{activeStageDetail.title}</h4>
+                <p className="text-slate-300 text-xs leading-relaxed font-semibold">
+                  {activeStageDetail.detail[tfcType]}
+                </p>
+              </div>
+            )}
+
+            {/* Tombol masuk ke Quest Hub Utama */}
+            <div className="pt-2 shrink-0 pb-4">
+              <button 
+                onClick={() => setView('misi_hub')}
+                className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-slate-900 py-4 px-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 border-b-2 border-orange-700"
+              >
+                <span>MASUK KE ARENA TANTANGAN ⚔️</span>
+              </button>
+            </div>
+
+          </div>
+        )}
+
+        {/* ================= SCREEN 3: MISI HUB (QUEST HUB CLICKABLE) ================= */}
+        {view === 'misi_hub' && (
+          <div className="flex flex-col h-full justify-between p-6 bg-slate-50 animate-in slide-in-from-right duration-500 overflow-y-auto">
+            
+            {/* Header Hub */}
+            <div className="flex items-center justify-between shrink-0 mb-3">
+              <button onClick={() => setView('stages_overview')} className="p-2.5 bg-white rounded-xl shadow-sm hover:bg-slate-100">
+                <ChevronLeft className="w-6 h-6 text-slate-700" />
+              </button>
+              <h2 className={`${titleStyle} uppercase italic text-blue-700 text-sm`}>{tfcType} Quest Hub</h2>
+              <button onClick={resetToHome} className="p-2.5 bg-white rounded-xl shadow-sm text-slate-400 hover:text-blue-600"><Home className="w-5 h-5" /></button>
+            </div>
+
+            {/* Board Misi Atas & Progress Tracker */}
+            <div className="bg-slate-900 text-white p-5 rounded-[2rem] shadow-xl shrink-0 space-y-3">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Quest Progress</span>
+                <span className="text-sm font-black text-yellow-400 uppercase">
+                  {getCompletedMissionsCount()}/3 Misi
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-full transition-all duration-1000" style={{ width: `${(getCompletedMissionsCount() / 3) * 100}%` }}></div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center text-[10px] text-slate-300 font-bold">
+                <span>Skor Akumulatif:</span>
+                <span className="text-yellow-400 font-black">{getCurrentTotalScore()} Pts</span>
+              </div>
+            </div>
+
+            {/* List Misi Klik Langsung Berupa Tombol Interaktif yang Kokoh */}
+            <div className="flex-1 space-y-3.5 py-3 overflow-y-auto">
+              
+              {/* MISI 1 (KUIS PUZZLE) */}
+              <button 
+                onClick={startQuiz}
+                className="w-full bg-white p-4.5 rounded-[2rem] border-2 hover:border-orange-500 shadow-md hover:shadow-lg transition-all flex items-center gap-4 hover:scale-[1.01] relative overflow-hidden"
+              >
+                <div className="bg-orange-100 p-3.5 rounded-2xl shrink-0 shadow-inner">
+                  <Trophy className="w-6 h-6 text-orange-600" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <h3 className={`${fontStyle} text-sm leading-tight`}>Misi 1: Hot Quiz (Puzzle)</h3>
+                  <p className={`${descStyle} text-slate-400 text-xs mt-1 truncate`}>Uji kecakapan teori script asuransi lama.</p>
+                  
+                  {/* Status Notifikasi */}
+                  <div className="mt-2">
+                    {misi1Selesai ? (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-green-700 bg-green-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                        <Check className="w-3 h-3 stroke-[3]" /> Selesai (+10 Pts Bonus)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                        <XCircle className="w-3 h-3" /> Belum Selesai
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {/* MISI 2 (MODE CHAT) */}
+              <button 
+                onClick={startChatPractice}
+                className="w-full bg-white p-4.5 rounded-[2rem] border-2 hover:border-blue-500 shadow-md hover:shadow-lg transition-all flex items-center gap-4 hover:scale-[1.01] relative overflow-hidden"
+              >
+                <div className="bg-blue-100 p-3.5 rounded-2xl shrink-0 shadow-inner">
+                  <MessageSquare className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <h3 className={`${fontStyle} text-sm`}>Misi 2: Berlatih Mode Chat</h3>
+                  <p className={`${descStyle} text-slate-400 text-xs mt-1 truncate`}>Latihan AI interaktif dengan 3 progress bar.</p>
+                  
+                  {/* Status Notifikasi */}
+                  <div className="mt-2">
+                    {misi2Selesai ? (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-green-700 bg-green-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                        <Check className="w-3 h-3 stroke-[3]" /> Selesai (+10 Pts Bonus)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                        <XCircle className="w-3 h-3" /> Belum Selesai
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {/* MISI 3 (TOTAL REKAPAN) */}
+              <button 
+                onClick={() => {
+                  if (misi1Selesai && misi2Selesai) {
+                    setMisi3Selesai(true);
+                  }
+                  setView('total_poin');
+                }}
+                className="w-full bg-gradient-to-tr from-slate-900 to-slate-950 p-4.5 rounded-[2rem] border-2 border-slate-800 hover:border-yellow-400 shadow-lg transition-all flex items-center gap-4 hover:scale-[1.01] text-white"
+              >
+                <div className="bg-yellow-500 p-3.5 rounded-2xl shrink-0 shadow-inner">
+                  <Coins className="w-6 h-6 text-slate-950 fill-current animate-bounce" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <h3 className={`${fontStyle} text-white text-sm leading-tight`}>Misi 3: Rekapan Total Poin</h3>
+                  <p className={`${descStyle} text-slate-400 text-xs mt-1 truncate`}>Penjumlahan skor, bonus, & syarat kelulusan.</p>
+                  
+                  {/* Status Notifikasi */}
+                  <div className="mt-2">
+                    {misi3Selesai ? (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-green-700 bg-green-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                        <Check className="w-3 h-3 stroke-[3]" /> Selesai (+10 Pts Bonus)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-rose-400 bg-white/10 px-3 py-1 rounded-full uppercase tracking-wider">
+                        <XCircle className="w-3 h-3" /> Belum Selesai
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {/* LIVE LEADERBOARD BUTTON */}
+              <button 
+                onClick={() => setView('leaderboard')}
+                className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-950 py-3.5 px-6 rounded-2xl font-black uppercase text-xs tracking-wider flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-95 transition-all border-b-2 border-amber-700"
+              >
+                <ListOrdered className="w-4 h-4" /> 🏆 LIHAT KLASEMEN (LEADERBOARD)
+              </button>
+
+            </div>
+
+            {/* Tombol kembali ke menu spesialisasi */}
+            <button 
+              onClick={() => setView('select_type')}
+              className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-xl font-black uppercase text-xs tracking-widest shrink-0 mb-4 sm:mb-0"
+            >
+              GANTI SPESIALISASI TFC
+            </button>
+          </div>
+        )}
+
+        {/* ================= SCREEN 4: MISI 1 (KUIS PUZZLE) ================= */}
+        {view === 'quiz' && (
+          <div className="flex flex-col h-full justify-between overflow-hidden relative">
+            <div className="bg-white p-4 border-b flex flex-col gap-2 shrink-0 shadow-sm">
+              <div className="flex justify-between items-center">
+                <button onClick={() => setView('misi_hub')} className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"><ChevronLeft className="w-5 h-5" /></button>
+                <div className="text-center">
+                  <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest leading-none">Misi 1: Hot Quiz</p>
+                  <p className={`${fontStyle} text-slate-800 leading-none mt-1`}>SOAL {currentIdx + 1}/10</p>
+                </div>
+                <div className="bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-200 flex items-center gap-1 shadow-sm">
+                  <Coins className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="text-xs font-black text-slate-700">{scoreMisi1} pts</span>
+                </div>
+              </div>
+
+              {/* Puzzle Progress tracker */}
+              <div className="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                <div className="flex justify-between items-center mb-1 px-1">
+                  <span className="text-[8px] font-black uppercase text-slate-400">Bingkai Progress Puzzle:</span>
+                  <span className="text-[9px] font-bold text-blue-600">{puzzleState.filter(Boolean).length}/10 Sukses</span>
+                </div>
+                <div className="grid grid-cols-10 gap-1 px-1">
+                  {puzzleState.map((unlocked, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`h-3 rounded-md transition-all duration-300 relative ${
+                        unlocked 
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 shadow-md border border-blue-600' 
+                          : 'bg-slate-200 border border-slate-300'
+                      }`}
+                    >
+                      {flyingPiece === idx && (
+                        <div className="absolute inset-0 bg-yellow-400 rounded-md animate-ping"></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex items-start gap-3 text-left">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 text-2xl flex items-center justify-center shadow-md shrink-0 border border-orange-200">
+                  {QUESTIONS[currentIdx].avatar}
+                </div>
+                <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-orange-600 mb-0.5">{QUESTIONS[currentIdx].client}</p>
+                  <p className={`${fontStyle} leading-normal text-slate-800 text-sm`}>"{QUESTIONS[currentIdx].text}"</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Pilih Strategi Jawaban:</p>
+                {QUESTIONS[currentIdx].options.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => handleAnswer(option)}
+                    disabled={lastCorrect !== null}
+                    className={`w-full p-3.5 rounded-xl border-2 text-left transition-all text-sm font-semibold flex items-start gap-3 ${
+                      selectedOption === option.key
+                        ? option.isCorrect
+                          ? 'border-green-600 bg-green-50 text-green-900 shadow-sm'
+                          : 'border-rose-600 bg-rose-50 text-rose-900 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-blue-400'
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] shrink-0 ${
+                      selectedOption === option.key
+                        ? option.isCorrect
+                          ? 'bg-green-600 text-white'
+                          : 'bg-rose-600 text-white'
+                        : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {option.key}
+                    </span>
+                    <span className="flex-1 leading-snug text-xs">{option.text}</span>
+                  </button>
+                ))}
+              </div>
+
+              {lastCorrect !== null && (
+                <div className={`p-4 rounded-xl border text-center animate-in zoom-in-95 duration-300 ${
+                  lastCorrect ? 'bg-green-50 border-green-200 text-green-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+                }`}>
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    {lastCorrect ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-600 fill-current" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-rose-600 fill-current" />
+                    )}
+                    <span className={`${fontStyle} uppercase text-sm`}>{lastCorrect ? "BENAR!" : "SALAH!"}</span>
+                  </div>
+                  <p className={`${descStyle} leading-normal text-xs`}>
+                    {lastCorrect 
+                      ? "+1 Kepingan Puzzle Terpasang di Bingkai!" 
+                      : "Wah, strategi kurang pas. Gunakan tombol 'CONTEK SCRIPT' untuk belajar!"}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 bg-white border-t rounded-t-[2rem] shadow-2xl flex gap-3 shrink-0 mb-4 sm:mb-0">
+              <button 
+                onClick={() => setShowHint(!showHint)}
+                className="flex-1 py-3 border border-blue-400 text-blue-600 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-blue-50 transition-colors"
+              >
+                {showHint ? "Sembunyikan" : "Contek Script 💡"}
+              </button>
+              
+              <button
+                onClick={nextQuestion}
+                disabled={lastCorrect === null}
+                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all active:scale-95"
+              >
+                Lanjutkan →
+              </button>
+            </div>
+
+            {showHint && (
+              <div className="absolute inset-x-4 bottom-24 bg-yellow-50 border-2 border-yellow-200 p-5 rounded-[2rem] shadow-2xl animate-in slide-in-from-bottom duration-300 text-left z-20">
+                <div className="flex items-center gap-1.5 text-yellow-700 font-black text-xs uppercase tracking-wider mb-2">
+                  <Info className="w-4 h-4" /> Petunjuk Script Lama
+                </div>
+                <p className={`${fontStyle} text-slate-800 leading-relaxed italic text-xs`}>
+                  {QUESTIONS[currentIdx].hint}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= SCREEN 5: VICTORY MISI 1 (KEPINGAN LENGKAP) ================= */}
+        {view === 'victory' && (
+          <div className="flex flex-col h-full justify-between p-6 overflow-y-auto">
+            <div className="space-y-6 pb-6 text-center">
+              <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-6 rounded-[3rem] shadow-2xl relative overflow-hidden text-center space-y-4">
+                <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><Award className="w-32 h-32 text-white" /></div>
+                
+                <div className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-sm border border-white/30">
+                  <Sparkles className="w-4 h-4 fill-current text-yellow-300 animate-spin" /> MISI 1 LENGKAP!
+                </div>
+                
+                {/* Puzzle Sempurna Terisi Penuh */}
+                <div className="bg-white p-2 rounded-[2.5rem] max-w-[180px] mx-auto shadow-2xl border-4 border-yellow-400">
+                  <div className="relative aspect-square bg-slate-900 rounded-[2rem] overflow-hidden flex items-center justify-center">
+                    <svg className="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="100" height="100" fill="#E0F2FE" />
+                      <circle cx="50" cy="55" r="35" fill="#FEF08A" />
+                      <circle cx="50" cy="55" r="28" fill="#FDE047" />
+                      <path d="M-10 100 L30 60 L70 100 Z" fill="#6EE7B7" opacity="0.7" />
+                      <path d="M40 100 L75 55 L110 100 Z" fill="#34D399" opacity="0.9" />
+                      <path d="M15 100 L55 70 L95 100 Z" fill="#10B981" />
+                      <path d="M25 80 L35 80 L35 100 L25 100 Z" fill="#1E3A8A" />
+                      <path d="M15 85 L35 65 L45 85 Z" fill="#EF4444" />
+                      <circle cx="30" cy="50" r="10" fill="#FED7AA" />
+                      <rect x="23" y="60" width="14" height="25" rx="4" fill="#3B82F6" />
+                      <path d="M28 50 C28 51 32 51 32 50" stroke="#1E3A8A" strokeWidth="1.5" strokeLinecap="round" />
+                      <circle cx="27" cy="48" r="1.5" fill="#1E3A8A" />
+                      <circle cx="33" cy="48" r="1.5" fill="#1E3A8A" />
+                      <circle cx="70" cy="55" r="9" fill="#FDBA74" />
+                      <rect x="63" y="64" width="14" height="20" rx="4" fill="#EC4899" />
+                      <path d="M68 55 C68 56 72 55 72 55" stroke="#4C1D95" strokeWidth="1.5" />
+                      <circle cx="67" cy="53" r="1" fill="#4C1D95" />
+                      <circle cx="71" cy="53" r="1" fill="#4C1D95" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="bg-white/10 p-4 rounded-xl text-white max-w-xs mx-auto">
+                  <p className={`${descStyle} uppercase text-white leading-none mb-1 text-xs`}>SKOR HOT QUIZ</p>
+                  <p className="text-2xl font-black text-yellow-300">+{scoreMisi1} Pts</p>
+                </div>
+              </div>
+
+              {/* Bonus Notifikasi untuk Misi 1 */}
+              <div className="bg-green-50 border border-green-200 p-4 rounded-2xl flex items-center gap-3 text-left">
+                <CheckCircle2 className="w-8 h-8 text-green-600 fill-current shrink-0" />
+                <div>
+                  <p className="text-xs font-black text-green-900 uppercase">BONUS TAHAPAN DIKLAIM!</p>
+                  <p className="text-sm font-bold text-green-800 leading-normal">+10 Poin Latihan Tambahan Terpasang.</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-[2rem] border border-slate-100 shadow-sm text-left space-y-2">
+                <h3 className={`${fontStyle} text-sm`}>Selamat, Puzzle Sempurna!</h3>
+                <p className={`${descStyle} text-xs`}>Anda berhasil menyusun gambar keberhasilan Agen TFC yang tangguh bersama nasabah bahagia!</p>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setView('misi_hub')}
+              className="w-full bg-slate-900 hover:bg-black text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shrink-0 mb-4 sm:mb-0"
+            >
+              KEMBALI KE QUEST HUB
+            </button>
+          </div>
+        )}
+
+        {/* ================= SCREEN 6: MISI 2 (BERLATIH DI MODE CHAT) ================= */}
+        {view === 'chat' && (
+          <div className="flex flex-col h-full justify-between overflow-hidden relative bg-slate-50">
+            {/* Header Latihan Chat */}
+            <div className="bg-white p-4 border-b flex flex-col gap-2 shrink-0 shadow-sm">
+              <div className="flex justify-between items-center">
+                <button onClick={() => setView('misi_hub')} className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"><ChevronLeft className="w-5 h-5" /></button>
+                <div className="text-center">
+                  <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest leading-none">Misi 2: Mode Chat</p>
+                  <p className={`${fontStyle} text-slate-800 mt-1 leading-none text-xs`}>{tfcType}</p>
+                </div>
+                <div className="bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-200 flex items-center gap-1 shadow-sm">
+                  <Coins className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="text-xs font-black text-slate-700">{scoreMisi2} pts</span>
+                </div>
+              </div>
+
+              {/* 3 Progress Bars untuk 15 Chat (Setiap 5 chat = 1 Progress Terpenuhi) */}
+              <div className="space-y-1 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                <div className="flex justify-between items-center mb-1 px-1">
+                  <span className="text-[8px] font-black uppercase text-slate-400 leading-none">PROGRESS ALUR CHAT:</span>
+                  <span className="text-[9px] font-extrabold text-blue-600 leading-none">{chatCount}/15</span>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 px-1">
+                  {/* Progress Bar 1 (Greeting & Opening) */}
+                  <div className="space-y-0.5">
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                      <div 
+                        className="bg-blue-600 h-full transition-all duration-500" 
+                        style={{ width: `${Math.min(100, (Math.max(0, chatCount) / 5) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-[7px] font-bold text-slate-500 block leading-none font-sans">Greet {Math.min(5, chatCount)}/5</span>
+                  </div>
+
+                  {/* Progress Bar 2 (Probing) */}
+                  <div className="space-y-0.5">
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                      <div 
+                        className="bg-indigo-600 h-full transition-all duration-500" 
+                        style={{ width: `${Math.min(100, (Math.max(0, chatCount - 5) / 5) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-[7px] font-bold text-slate-500 block leading-none font-sans">Probe {Math.min(5, Math.max(0, chatCount - 5))}/5</span>
+                  </div>
+
+                  {/* Progress Bar 3 (Objection & Closing) */}
+                  <div className="space-y-0.5">
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                      <div 
+                        className="bg-emerald-600 h-full transition-all duration-500" 
+                        style={{ width: `${Math.min(100, (Math.max(0, chatCount - 10) / 5) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-[7px] font-bold text-slate-500 block leading-none font-sans">Close {Math.min(5, Math.max(0, chatCount - 10))}/5</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scroll Area Obrolan Chat */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin bg-slate-50">
+              
+              {/* Petunjuk / Hint sesuai tahap saat ini */}
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-2xl text-left shadow-sm">
+                <p className="text-[8px] font-black uppercase text-yellow-700 tracking-wider mb-1">PANDUAN ACUAN TAHAP {Math.min(3, Math.floor(chatCount / 5) + 1)}:</p>
+                <p className={`${descStyle} text-slate-700 italic font-medium leading-normal text-xs`}>
+                  "{CHAT_STAGES[Math.min(2, Math.floor(chatCount / 5))]?.hint[tfcType]}"
+                </p>
+              </div>
+
+              {chatMessages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
+                  <div className={`max-w-[85%] p-3.5 rounded-[1.5rem] shadow-sm text-left ${
+                    m.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
+                  }`}>
+                    <p className={`${fontStyle} leading-normal text-sm`}>{m.content}</p>
+                  </div>
+                </div>
+              ))}
+
+              {isLoding && (
+                <div className="flex justify-start">
+                  <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm">
+                    <div className="flex gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-75"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-150"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Area Input Chat Terkunci di Bawah Layar Smartphone - Desain Safe Area */}
+            <div className="p-4 bg-white border-t rounded-t-[2rem] shadow-2xl shrink-0 pb-6 mb-4 sm:mb-0">
+              {chatCount >= 15 ? (
+                <div className="text-center py-2 space-y-3 animate-in zoom-in-95">
+                  <p className="text-green-600 font-extrabold text-xs uppercase">🎉 Semua 3 Tahap Obrolan Sukses Diselesaikan!</p>
+                  <button 
+                    onClick={() => {
+                      setMisi2Selesai(true);
+                      setCompletedMissions(prev => Math.min(3, prev + 1));
+                      setView('chat_victory');
+                    }}
+                    className="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase text-xs shadow-md active:scale-95"
+                  >
+                    Lihat Laporan Evaluasi Chat
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:ring-2 ring-blue-500 transition-all">
+                  <input 
+                    type="text" 
+                    placeholder="Ketik balasan Anda..."
+                    className={`${fontStyle} flex-1 bg-transparent outline-none p-1 text-sm text-slate-800 placeholder:text-slate-400 font-semibold min-w-0`}
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendChat()}
+                    disabled={isLoding}
+                  />
+                  <button 
+                    onClick={handleSendChat} 
+                    disabled={!chatInput.trim() || isLoding} 
+                    className="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-md shrink-0 flex items-center justify-center"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ================= SCREEN 7: VICTORY MISI 2 (CHATTING SELESAI) ================= */}
+        {view === 'chat_victory' && (
+          <div className="flex flex-col h-full justify-between p-6 overflow-y-auto bg-white">
+            <div className="space-y-6 pb-6 text-center animate-in zoom-in-95">
+              <div className="bg-gradient-to-tr from-emerald-600 to-teal-600 p-6 rounded-[3rem] shadow-2xl relative overflow-hidden space-y-4">
+                <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><Award className="w-32 h-32 text-white" /></div>
+                
+                <div className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-sm border border-white/30">
+                  <Sparkles className="w-4 h-4 fill-current text-yellow-300 animate-spin" /> MISI 2 LENGKAP!
+                </div>
+                
+                <div className="bg-white p-4 rounded-3xl max-w-[180px] mx-auto shadow-xl">
+                  <Coins className="w-10 h-10 text-yellow-500 fill-current mx-auto animate-bounce" />
+                  <p className={`${descStyle} uppercase text-slate-400 mt-2 text-xs`}>POIN DIPEROLEH</p>
+                  <p className="text-2xl font-black text-emerald-600 leading-none">+{scoreMisi2} Pts</p>
+                </div>
+
+                <h3 className={`${titleStyle} text-white uppercase text-lg`}>CONGRATULATIONS!</h3>
+                <p className={`${fontStyle} text-emerald-50 px-2 leading-relaxed opacity-95 text-sm`}>
+                  "Anda berhasil menyelesaikan 15 tahapan percakapan chat interaktif dengan sukses."
+                </p>
+              </div>
+
+              {/* Bonus Notifikasi untuk Misi 2 */}
+              <div className="bg-green-50 border border-green-200 p-4 rounded-2xl flex items-center gap-3 text-left">
+                <CheckCircle2 className="w-8 h-8 text-green-600 fill-current shrink-0" />
+                <div>
+                  <p className="text-xs font-black text-green-900 uppercase">BONUS TAHAPAN DIKLAIM!</p>
+                  <p className="text-sm font-bold text-green-800 leading-normal">+10 Poin Latihan Tambahan Terpasang.</p>
+                </div>
+              </div>
+
+              {/* Laporan Evaluasi Chat Misi 2 */}
+              <div className="space-y-4 px-2 text-left">
+                <h3 className={`${fontStyle} font-black text-slate-500 flex items-center justify-between uppercase tracking-widest text-xs`}>
+                  Hasil Penilaian Chat <BarChart3 className="w-5 h-5 text-slate-400" />
+                </h3>
+                <div className="grid gap-3">
+                  {[
+                    { label: 'Intonasi & Smiling Voice', score: 5 },
+                    { label: 'Kepercayaan Diri (Confidence)', score: 4 },
+                    { label: 'Penyampaian Manfaat Tambahan', score: 5 }
+                  ].map((item, idx) => (
+                    <div key={idx} className="bg-slate-50 p-3.5 rounded-[1.5rem] border border-slate-100 shadow-sm flex items-center gap-3">
+                      <div className="bg-white w-9 h-10 rounded-xl flex items-center justify-center font-black text-blue-600 shadow-sm border border-slate-50 text-sm italic shrink-0">{item.score}</div>
+                      <div className="flex-1">
+                        <span className="text-[10px] font-bold text-slate-700 block mb-1 uppercase tracking-tighter text-xs">{item.label}</span>
+                        <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: `${(item.score / 5) * 100}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setView('misi_hub')}
+              className="w-full bg-slate-900 hover:bg-black text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shrink-0 mb-4 sm:mb-0 active:scale-95"
+            >
+              KEMBALI KE QUEST HUB
+            </button>
+          </div>
+        )}
+
+        {/* ================= SCREEN 8: MISI 3 (TOTAL SCORE GABUNGAN) ================= */}
+        {view === 'total_poin' && (
+          <div className="flex flex-col h-full justify-between p-6 bg-white animate-in zoom-in-95 duration-500 overflow-y-auto">
+            <div className="space-y-6 pb-6 text-center">
+              
+              <div className="bg-gradient-to-tr from-slate-900 to-indigo-950 p-6 rounded-[3rem] shadow-2xl relative overflow-hidden space-y-4">
+                <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12"><Award className="w-32 h-32 text-white" /></div>
+                
+                <div className="inline-flex items-center gap-2 bg-white/10 text-yellow-400 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-white/20">
+                  <Trophy className="w-4 h-4 fill-current animate-bounce" /> TOTAL REKAPAN POIN
+                </div>
+
+                {/* Score Total Gabungan + Tambahan Bonus */}
+                <div className="bg-white/10 p-5 rounded-3xl border border-white/10 text-white max-w-xs mx-auto space-y-1">
+                  <p className={`${descStyle} uppercase text-slate-300 leading-none text-xs`}>TOTAL POIN GABUNGAN</p>
+                  
+                  {/* Penjumlahan: Skor Kuis + Skor Chat + Poin Bonus Tambahan Misi */}
+                  <p className="text-3xl font-black text-yellow-300 leading-none">
+                    {getCurrentTotalScore()} Pts
+                  </p>
+                  
+                  <div className="pt-2 text-[10px] text-yellow-200/90 font-black uppercase tracking-wider">
+                    Termasuk {(scoreMisi1 > 0 ? 10 : 0) + (scoreMisi2 > 0 ? 10 : 0)} Pts Bonus Kelulusan Stage!
+                  </div>
+                </div>
+              </div>
+
+              {/* Rincian Kontribusi Poin Misi */}
+              <div className="space-y-4 px-2 text-left">
+                <h3 className={`${fontStyle} font-black text-slate-500 flex items-center justify-between uppercase tracking-widest text-xs`}>
+                  Rincian Perolehan <Coins className="w-5 h-5 text-yellow-500" />
+                </h3>
+                
+                <div className="space-y-2.5">
+                  {/* Misi 1 */}
+                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                      <p className={`${fontStyle} text-xs`}>Misi 1: Hot Quiz</p>
+                      <p className={`${descStyle} text-slate-400 text-[10px]`}>Evaluasi Pemahaman Teori</p>
+                    </div>
+                    <span className="text-xs font-black text-orange-600">{scoreMisi1} Pts</span>
+                  </div>
+
+                  {/* Misi 2 */}
+                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                    <div>
+                      <p className={`${fontStyle} text-xs`}>Misi 2: Berlatih Chat</p>
+                      <p className={`${descStyle} text-slate-400 text-[10px]`}>Simulasi 3 Tahap Alur Percakapan</p>
+                    </div>
+                    <span className="text-xs font-black text-blue-600">{scoreMisi2} Pts</span>
+                  </div>
+
+                  {/* Bonus Tambahan */}
+                  <div className="bg-yellow-50/50 p-3.5 rounded-2xl border border-yellow-200/60 shadow-sm flex justify-between items-center">
+                    <div>
+                      <p className={`${fontStyle} text-xs text-amber-700`}>Bonus Kelulusan Stage</p>
+                      <p className={`${descStyle} text-amber-600 text-[10px]`}>+10 Pts Per Setiap Misi Selesai</p>
+                    </div>
+                    <span className="text-xs font-black text-amber-700">
+                      +{ (scoreMisi1 > 0 ? 10 : 0) + (scoreMisi2 > 0 ? 10 : 0) } Pts
+                    </span>
+                  </div>
+
+                  {/* Misi 3 Status */}
+                  <div className="bg-slate-900 p-3.5 rounded-2xl text-white flex justify-between items-center">
+                    <div>
+                      <p className="font-extrabold text-xs text-yellow-400 uppercase tracking-wider">Status Kelulusan</p>
+                      <p className={`${descStyle} text-slate-300 text-xs`}>Verifikasi Akhir Manajer AXA</p>
+                    </div>
+                    <span className="text-xs font-black text-green-400">
+                      {scoreMisi1 > 0 && scoreMisi2 > 0 ? "LULUS VERIFIKASI 🎉" : "BELUM SELESAI"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rekomendasi Karir */}
+              <div className="bg-rose-50 border border-rose-100 p-6 rounded-[2.5rem] space-y-2 text-left">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <div className="bg-rose-500 p-2 rounded-xl text-white shadow-lg"><ShieldCheck className="w-4 h-4" /></div>
+                  <h3 className={`${fontStyle} font-black uppercase tracking-widest leading-none text-xs`}>Rekomendasi Karir TFC</h3>
+                </div>
+                <p className={`${fontStyle} text-rose-900 leading-relaxed font-bold italic text-xs`}>
+                  {scoreMisi1 + scoreMisi2 >= 1000 
+                    ? '"Selamat! Anda menunjukkan akurasi taktis yang tinggi. Siap ditempatkan di tim utama AXA Financial!"' 
+                    : '"Lanjutkan latihan Anda! Fokus pada evaluasi kuis dan penuhi 3 tahap progress latihan chat untuk kelulusan penuh."'}
+                </p>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setView('misi_hub')}
+              className="w-full bg-slate-900 hover:bg-black text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shrink-0 mb-4 sm:mb-0 active:scale-95"
+            >
+              KEMBALI KE QUEST HUB
+            </button>
+          </div>
+        )}
+
+        {/* ================= SCREEN 9: DYNAMIC LEADERBOARD (KLASEMEN REAL-TIME) ================= */}
+        {view === 'leaderboard' && (
+          <div className="flex flex-col h-full justify-between p-6 bg-slate-900 animate-in slide-in-from-right duration-500 overflow-y-auto scrollbar-none text-white">
+            
+            {/* Header Leaderboard */}
+            <div className="flex items-center justify-between shrink-0 mb-4">
+              <button onClick={() => setView('misi_hub')} className="p-2.5 bg-slate-800 rounded-xl shadow-sm hover:bg-slate-700 text-white">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <h2 className="text-xl font-black text-yellow-400 uppercase italic tracking-wider flex items-center gap-1.5">
+                <Trophy className="w-5 h-5 text-yellow-400 animate-bounce" /> KLASEMEN TFC
+              </h2>
+              <button onClick={resetToHome} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 hover:text-white"><Home className="w-6 h-6" /></button>
+            </div>
+
+            {/* Konten Papan Peringkat */}
+            <div className="flex-1 space-y-4">
+              <p className={`${descStyle} text-center text-slate-400 mb-2`}>
+                Selesaikan misi teori dan percakapan untuk menaikkan posisi pahlawan Anda!
+              </p>
+
+              <div className="space-y-2.5">
+                {getSortedLeaderboard().map((row, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-4 rounded-2xl flex items-center justify-between transition-all border ${
+                      row.isCurrentUser 
+                        ? 'bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-slate-950 font-black border-yellow-300 scale-[1.02] shadow-[0_0_20px_rgba(245,158,11,0.25)]' 
+                        : 'bg-slate-800/80 border-slate-700 text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Urutan Peringkat */}
+                      <span className={`w-6 text-center font-black text-sm ${row.isCurrentUser ? 'text-slate-950' : 'text-slate-400'}`}>
+                        #{index + 1}
+                      </span>
+                      
+                      {/* Avatar Ikon */}
+                      <span className="text-xl shrink-0">{row.avatar}</span>
+                      
+                      {/* Nama Agen */}
+                      <div className="truncate text-left">
+                        <p className="font-extrabold text-sm truncate leading-none mb-1">{row.name}</p>
+                        <p className={`text-[9px] uppercase tracking-wider leading-none ${row.isCurrentUser ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+                          {row.rank}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Skor */}
+                    <div className="text-right shrink-0">
+                      <span className="text-sm font-black tracking-tight">{row.score} Pts</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tombol Kembali ke Hub */}
+            <button 
+              onClick={() => setView('misi_hub')}
+              className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 py-4 rounded-2xl font-black uppercase text-xs tracking-wider shrink-0 mt-6 active:scale-95 transition-all border-b-2 border-amber-700"
+            >
+              KEMBALI KE QUEST HUB
+            </button>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+export default App;
